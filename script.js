@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const orderNumber = orderInput.value;
 
       // Fetch the order status from the backend (Flask server)
-      fetch(`http://127.0.0.1:5000/order-status?order_name=${orderNumber}`)
+      fetch(`https://order-tracking-widgetsts.onrender.com/order-status?order_name=${orderNumber}`)
           .then(response => response.json())
           .then(data => {
               // Hide all frames first
