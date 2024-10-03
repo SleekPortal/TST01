@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
   submitButton.addEventListener('click', function () {
       // Get the order number from the input field
       const orderNumber = orderInput.value;
+      showLoadingScreen();
+
 
       // Fetch the order status from the backend (Flask server)
       fetch(`https://order-tracking-widgetsts.onrender.com/order-status?order_name=${orderNumber}`)
