@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingScreen.classList.add('hidden');
     }
 
+    hideLoadingScreen();
 
   // Add event listener to the submit button
   submitButton.addEventListener('click', function () {
