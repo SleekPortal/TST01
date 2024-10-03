@@ -4,6 +4,20 @@ document.addEventListener('DOMContentLoaded', function () {
   const submitButton = document.getElementById('submit');
   const orderInput = document.getElementById('orderInput');
 
+    // Get references to the loading screen and other elements
+    const loadingScreen = document.getElementById('loading-screen');
+
+    // Show loading screen
+    function showLoadingScreen() {
+        loadingScreen.classList.remove('hidden');
+    }
+
+    // Hide loading screen
+    function hideLoadingScreen() {
+        loadingScreen.classList.add('hidden');
+    }
+
+
   // Add event listener to the submit button
   submitButton.addEventListener('click', function () {
       // Get the order number from the input field
@@ -13,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
       fetch(`https://order-tracking-widgetsts.onrender.com/order-status?order_name=${orderNumber}`)
           .then(response => response.json())
           .then(data => {
+                hideLoadingScreen();
+
               // Hide all frames first
               hideAllFrames();
 
@@ -33,8 +49,10 @@ document.addEventListener('DOMContentLoaded', function () {
               }
           })
           .catch(error => {
-              console.error('Error fetching order status:', error);
-          });
+            // Hide the loading screen if there's an error
+            hideLoadingScreen();
+            console.error('Error fetching order status:', error);
+            alert("An error occurred while fetching the order status.");          });
   });
 
   // Hide all frames
