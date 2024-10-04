@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showLoadingScreen();
 
         // Fetch the order status from the backend
-        fetch(`https://your-backend-url/order-status?order_name=${orderNumber}`)
+        fetch(`https://order-tracking-widgetsts.onrender.com/order-status?order_name=${orderNumber}`)
             .then(response => {
                 console.log("Fetch response received", response);
 
