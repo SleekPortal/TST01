@@ -8,14 +8,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Show loading screen
     function showLoadingScreen() {
         console.log("Showing loading screen...");
-        loadingScreen.classList.remove('hidden');
+        document.getElementById('loading-screen').style.visibility = 'visible';
         console.log("Loading screen is now visible");
     }
 
     // Hide loading screen
     function hideLoadingScreen() {
         console.log("Hiding loading screen...");
-        loadingScreen.classList.add('hidden');
+        document.getElementById('loading-screen').style.visibility = 'hidden';
         console.log("Hidden class added to loading screen");
         console.log("Current loading screen classes:", loadingScreen.classList);
     }
