@@ -9,12 +9,15 @@ document.addEventListener('DOMContentLoaded', function () {
     function showLoadingScreen() {
         console.log("Showing loading screen...");
         loadingScreen.classList.remove('hidden');
+        console.log("Loading screen is now visible");
     }
 
     // Hide loading screen
     function hideLoadingScreen() {
         console.log("Hiding loading screen...");
         loadingScreen.classList.add('hidden');
+        console.log("Hidden class added to loading screen");
+        console.log("Current loading screen classes:", loadingScreen.classList);
     }
 
     // Ensure the loading screen is hidden initially
