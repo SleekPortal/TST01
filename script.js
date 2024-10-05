@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('frame-3').classList.add('visible')
                 } else if (data.estado === 'enviado') {
                     const frame = document.getElementById('frame-4');
-                    frame.querySelector('p').innerHTML = `Su producto ha sido enviado. El pedido se ha enviado mediante ${data.informacion.carrier} y el número de envío es <a href= "https://s.correosexpress.com/SeguimientoSinCP/search?n=${data.informacion.tracking}"> ${data.informacion.tracking}</a>.`;
+                    frame.querySelector('p').innerHTML = `Su producto ha sido enviado. El pedido se ha enviado mediante ${data.informacion.carrier} y el número de envío es <a href= "https://s.correosexpress.com/SeguimientoSinCP/search?n=${data.informacion.tracking}" target="_blank"> ${data.informacion.tracking}</a>.`;
                     frame.classList.add('visible');
                 } else if (data.estado === 'esperando') {
                     document.getElementById('frame-5').classList.add('visible');
