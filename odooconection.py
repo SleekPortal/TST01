@@ -7,11 +7,16 @@ import xmlrpc.client
 app = Flask(__name__)
 CORS(app)
 
-# Odoo Connection Setup
-url = 'https://test-company47.odoo.com'
-db = 'test-company47'
-username = 'lazypau@protonmail.com'
-password = 'mainadmin'
+
+# Fetch Odoo credentials from environment variables
+url = os.environ.get('ODOO_URL')
+db = os.environ.get('ODOO_DB')
+username = os.environ.get('ODOO_USERNAME')
+password = os.environ.get('ODOO_PASSWORD')
+
+# Ensure environment variables are available
+if not url or not db or not username or not password:
+    raise ValueError("Missing Odoo environment variables. Please set ODOO_URL, ODOO_DB, ODOO_USERNAME, ODOO_PASSWORD.")
 
 # Connect to Odoo via XML-RPC
 common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
