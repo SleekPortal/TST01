@@ -8,7 +8,6 @@ from datetime import datetime, date
 app = Flask(__name__)
 CORS(app)
 
-
 # Fetch Odoo credentials from environment variables
 url = os.environ.get('ODOO_URL')
 db = os.environ.get('ODOO_DB')
@@ -42,28 +41,30 @@ def get_order_status():
                                   [[['origin', '=', order_name]]],
                                   {'fields': ['state']})
 
-
-
+    # Fetch the products of the order from Odoo
     Product_list = models.execute_kw(db, uid, password, 'sale.order.line', 'search_read',
-                                    [[['order_id', '=', order_name]]],
-                                    {'fields': ['product_id', 'name', 'product_uom_qty']})
+                                     [[['order_id', '=', order_name]]],
+                                     {'fields': ['product_id', 'name', 'product_uom_qty']})
 
     # Create a list to store product information along with their edition date
     Product_with_date = []
 
     # Loop through each product in the order
     for product in Product_list:
-        product_id = product['product_id'][0]  # Get the product's ID from 'product_id' (first item is the ID)
+        product_id = product['product_id'][0]  # Get the product's ID from 'product_id'
         
         # Fetch the 'tec_fecha_edicion' field from 'product.template' for each product
         product_template_data = models.execute_kw(db, uid, password, 'product.template', 'search_read',
-                                                [[['id', '=', product_id]]],
-                                                {'fields': ['tec_fecha_edicion']})
+                                                  [[['id', '=', product_id]]],
+                                                  {'fields': ['tec_fecha_edicion']})
+        
+        # Debugging print statements to check the values from Odoo
+        print("Product Template Data:", product_template_data)
         
         # If product template data exists and has a date, convert it to a datetime object
         if product_template_data and product_template_data[0].get('tec_fecha_edicion'):
             tec_fecha_edicion_str = product_template_data[0]['tec_fecha_edicion']
-            tec_fecha_edicion = datetime.strptime(tec_fecha_edicion_str, '%Y-%m-%d').date()  # Convert to date object
+            tec_fecha_edicion = datetime.strptime(tec_fecha_edicion_str, '%Y-%m-%d').date()  # Adjust this if format is different
         else:
             tec_fecha_edicion = None  # Handle missing date case
         
@@ -71,18 +72,17 @@ def get_order_status():
         product['tec_fecha_edicion'] = tec_fecha_edicion
         Product_with_date.append(product)
 
-    # Find the product with the latest 'tec_fecha_edicion'
-    latest_product = max(Product_with_date, key=lambda d: d['tec_fecha_edicion'] or date.min)
+    # Find the product with the latest 'tec_fecha_edicion', ignoring None dates
+    latest_product = max((p for p in Product_with_date if p['tec_fecha_edicion']), 
+                         key=lambda d: d['tec_fecha_edicion'], default=None)
 
-    print(latest_product,product_template_data,tec_fecha_edicion)
+    print("Latest Product:", latest_product)
 
     # Compare the latest 'tec_fecha_edicion' with today's date
-    if latest_product['tec_fecha_edicion'] and latest_product['tec_fecha_edicion'] > date.today():
+    if latest_product and latest_product['tec_fecha_edicion'] > date.today():
         preventa = True
     else:
         preventa = False
-
-
 
     # Determine the delivery status and prepare the response
     if RawStatus:
@@ -100,9 +100,9 @@ def get_order_status():
             else:
                 informacion = {}
         else:
-            if preventa: 
+            if preventa:
                 estado = 'preventa'
-                informacion = {'producto':latest_product['name'],'fecha':latest_product['tec_fecha_edicion']}
+                informacion = {'producto': latest_product['name'], 'fecha': latest_product['tec_fecha_edicion']}
             else:
                 estado = 'esperando'
                 informacion = {}
