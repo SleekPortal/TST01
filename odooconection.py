@@ -77,10 +77,10 @@ def get_order_status():
                          key=lambda d: d['tec_fecha_edicion'], default=None)
 
     print("Latest Product:", latest_product, flush=True)
-
+    print(Product_list,flush=True)
 
     # Compare the latest 'tec_fecha_edicion' with today's date
-    if latest_product and latest_product['tec_fecha_edicion'] > date.today():
+    if latest_product and latest_product['tec_fecha_edicion'] < date.today():
         preventa = True
     else:
         preventa = False
