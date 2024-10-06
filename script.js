@@ -59,7 +59,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else if (data.estado === 'esperando') {
                     document.getElementById('frame-5').classList.add('visible');
                 } else if (data.estado === 'preventa') {
-                    document.getElementById('frame-6').classList.add('visible');
+                    const frame = document.getElementById('frame-6');
+                    frame.querySelector('p').innerHTML = `El producto ${data.informacion.producto} está en preventa y no se va a enviar hasta ${data.informacion.fecha}. Si quieres un pedido parcial (4,99€), escribe a <a href="mailto:tienda@thestoreteam.com">tienda@thestoreteam.com`;
+                    frame.classList.add('visible');
                 } else {
                     document.getElementById('frame-2').classList.add('visible');
                 }

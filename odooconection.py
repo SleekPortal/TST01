@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import os
 from flask_cors import CORS
 import xmlrpc.client
+from datetime import datetime, date
 
 # Initialize Flask app and enable CORS
 app = Flask(__name__)
@@ -41,13 +42,44 @@ def get_order_status():
                                   [[['origin', '=', order_name]]],
                                   {'fields': ['state']})
 
-    # Fetch the products of the order from Odoo
-    Product_list = models.execute_kw(db, uid, password, 'sale.order.line', 'search_read',
-                                     [[['order_id', '=', order_name]]],
-                                     {'fields': ['product_id', 'name', 'product_uom_qty']})
 
-    # Sort products by name
-    Sorted_list = sorted(Product_list, key=lambda d: d['name'])
+
+    Product_list = models.execute_kw(db, uid, password, 'sale.order.line', 'search_read',
+                                    [[['order_id', '=', order_name]]],
+                                    {'fields': ['product_id', 'name', 'product_uom_qty']})
+
+    # Create a list to store product information along with their edition date
+    Product_with_date = []
+
+    # Loop through each product in the order
+    for product in Product_list:
+        product_id = product['product_id'][0]  # Get the product's ID from 'product_id' (first item is the ID)
+        
+        # Fetch the 'tec_fecha_edicion' field from 'product.template' for each product
+        product_template_data = models.execute_kw(db, uid, password, 'product.template', 'search_read',
+                                                [[['id', '=', product_id]]],
+                                                {'fields': ['tec_fecha_edicion']})
+        
+        # If product template data exists and has a date, convert it to a datetime object
+        if product_template_data and product_template_data[0].get('tec_fecha_edicion'):
+            tec_fecha_edicion_str = product_template_data[0]['tec_fecha_edicion']
+            tec_fecha_edicion = datetime.strptime(tec_fecha_edicion_str, '%Y-%m-%d').date()  # Convert to date object
+        else:
+            tec_fecha_edicion = None  # Handle missing date case
+        
+        # Add the product with the parsed date (or None) to the list
+        product['tec_fecha_edicion'] = tec_fecha_edicion
+        Product_with_date.append(product)
+
+    # Find the product with the latest 'tec_fecha_edicion'
+    latest_product = max(Product_with_date, key=lambda d: d['tec_fecha_edicion'] or date.min)
+
+    # Compare the latest 'tec_fecha_edicion' with today's date
+    if latest_product['tec_fecha_edicion'] and latest_product['tec_fecha_edicion'] > date.today():
+        preventa = True
+    else:
+        preventa = False
+
 
     # Determine the delivery status and prepare the response
     if RawStatus:
@@ -65,8 +97,12 @@ def get_order_status():
             else:
                 informacion = {}
         else:
-            estado = 'esperando'
-            informacion = {}
+            if preventa: 
+                estado = 'preventa'
+                informacion = {'producto':latest_product['name'],'fecha':latest_product['tec_fecha_edicion']}
+            else:
+                estado = 'esperando'
+                informacion = {}
     else:
         estado = 'not_found'
         informacion = {}
