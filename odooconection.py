@@ -86,6 +86,12 @@ def get_order_status():
         preventa = False
     
     print("L",preventa, flush=True)
+    # Debugging today's date and the type of tec_fecha_edicion
+    print("Today's date:", date.today(), flush=True)
+    print("Type of today's date:", type(date.today()), flush=True)
+    print("Latest Product tec_fecha_edicion:", latest_product['tec_fecha_edicion'], flush=True)
+    print("Type of tec_fecha_edicion:", type(latest_product['tec_fecha_edicion']), flush=True)
+
 
     # Determine the delivery status and prepare the response
     if RawStatus:
