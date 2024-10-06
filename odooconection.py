@@ -78,11 +78,14 @@ def get_order_status():
 
     print("Latest Product:", latest_product, flush=True)
 
+
     # Compare the latest 'tec_fecha_edicion' with today's date
     if latest_product and latest_product['tec_fecha_edicion'] > date.today():
         preventa = True
     else:
         preventa = False
+    
+    print("L",preventa, flush=True)
 
     # Determine the delivery status and prepare the response
     if RawStatus:
