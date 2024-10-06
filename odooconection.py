@@ -6,7 +6,7 @@ from datetime import datetime, date
 
 # Initialize Flask app and enable CORS
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://lazypau.github.io"}})
 
 # Fetch Odoo credentials from environment variables
 url = os.environ.get('ODOO_URL')
