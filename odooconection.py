@@ -74,11 +74,14 @@ def get_order_status():
     # Find the product with the latest 'tec_fecha_edicion'
     latest_product = max(Product_with_date, key=lambda d: d['tec_fecha_edicion'] or date.min)
 
+    print(latest_product,product_template_data,tec_fecha_edicion)
+
     # Compare the latest 'tec_fecha_edicion' with today's date
     if latest_product['tec_fecha_edicion'] and latest_product['tec_fecha_edicion'] > date.today():
         preventa = True
     else:
         preventa = False
+
 
 
     # Determine the delivery status and prepare the response

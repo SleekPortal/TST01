@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Hide all frames first
                 hideAllFrames();
-
+                console.log("Log",data.informacion);
                 // Show the appropriate frame based on the data
                 if (data.estado === 'preparacion') {
                     document.getElementById('frame-3').classList.add('visible')
