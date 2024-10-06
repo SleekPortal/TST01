@@ -59,7 +59,7 @@ def get_order_status():
                                                   {'fields': ['tec_fecha_edicion']})
         
         # Debugging print statements to check the values from Odoo
-        print("Product Template Data:", product_template_data)
+        print("Product Template Data:", product_template_data, flush=True)
         
         # If product template data exists and has a date, convert it to a datetime object
         if product_template_data and product_template_data[0].get('tec_fecha_edicion'):
@@ -76,7 +76,7 @@ def get_order_status():
     latest_product = max((p for p in Product_with_date if p['tec_fecha_edicion']), 
                          key=lambda d: d['tec_fecha_edicion'], default=None)
 
-    print("Latest Product:", latest_product)
+    print("Latest Product:", latest_product, flush=True)
 
     # Compare the latest 'tec_fecha_edicion' with today's date
     if latest_product and latest_product['tec_fecha_edicion'] > date.today():
