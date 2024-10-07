@@ -130,7 +130,7 @@ def get_order_status():
         else:
             if preventa:
                 estado = 'preventa'
-                informacion = {'producto': latest_product['name'], 'fecha': latest_product['tec_fecha_edicion']}
+                informacion = {'producto': nombreProducto, 'fecha': fechaEdicion}
             else:
                 estado = 'esperando'
                 informacion = {}
