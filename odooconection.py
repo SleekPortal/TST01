@@ -51,46 +51,50 @@ def get_order_status():
 
     # Loop through each product in the order
     for product in Product_list:
-        product_id = product['product_id'][0]  # Get the product's ID from 'product_id'
+        product_id = product['product_id'][0]  # Get the product's ID from 'product_id' (first item is the ID)
         
-        # Fetch the 'tec_fecha_edicion' field from 'product.template' for each product
-        product_template_data = models.execute_kw(db, uid, password, 'product.template', 'search_read',
-                                                  [[['id', '=', product_id]]],
-                                                  {'fields': ['tec_fecha_edicion']})
+        # Step 1: Query the product.product model using the product_id
+        product_data = models.execute_kw(db, uid, password, 'product.product', 'search_read',
+                                        [[['id', '=', product_id]]],
+                                        {'fields': ['product_tmpl_id']})
         
-        # Debugging print statements to check the values from Odoo
-        print("Product Template Data:", product_template_data, flush=True)
+        if product_data and product_data[0].get('product_tmpl_id'):
+            product_template_id = product_data[0]['product_tmpl_id'][0]  # Get the product template ID
         
-        # If product template data exists and has a date, convert it to a datetime object
-        if product_template_data and product_template_data[0].get('tec_fecha_edicion'):
-            tec_fecha_edicion_str = product_template_data[0]['tec_fecha_edicion']
-            tec_fecha_edicion = datetime.strptime(tec_fecha_edicion_str, '%Y-%m-%d').date()  # Adjust this if format is different
+            # Step 2: Query the product.template model using the product_template_id
+            product_template_data = models.execute_kw(db, uid, password, 'product.template', 'search_read',
+                                                    [[['id', '=', product_template_id]]],
+                                                    {'fields': ['tec_fecha_edicion']})
+        
+            # If product template data exists and has a date, convert it to a datetime object
+            if product_template_data and product_template_data[0].get('tec_fecha_edicion'):
+                tec_fecha_edicion_str = product_template_data[0]['tec_fecha_edicion']
+                tec_fecha_edicion = datetime.strptime(tec_fecha_edicion_str, '%Y-%m-%d').date()  # Convert to date object
+                product['tec_fecha_edicion'] = tec_fecha_edicion  # Assign date to the product
+            else:
+                product['tec_fecha_edicion'] = None  # Handle missing date case
         else:
-            tec_fecha_edicion = None  # Handle missing date case
+            product['tec_fecha_edicion'] = None  # Handle missing product template ID case
         
-        # Add the product with the parsed date (or None) to the list
-        product['tec_fecha_edicion'] = tec_fecha_edicion
-        Product_with_date.append(product)
+        Product_with_date.append(product)  # Add the product to the list
 
-    # Find the product with the latest 'tec_fecha_edicion', ignoring None dates
-    latest_product = max((p for p in Product_with_date if p['tec_fecha_edicion']), 
-                         key=lambda d: d['tec_fecha_edicion'], default=None)
+    # Find the product with the latest 'tec_fecha_edicion' (skip None values)
+    Product_with_valid_date = [p for p in Product_with_date if p['tec_fecha_edicion'] is not None]
 
-    print("Latest Product:", latest_product, flush=True)
-    print(Product_list,flush=True)
-
-    # Compare the latest 'tec_fecha_edicion' with today's date
-    if latest_product and latest_product['tec_fecha_edicion'] < date.today():
-        preventa = True
+    if Product_with_valid_date:
+        latest_product = max(Product_with_valid_date, key=lambda d: d['tec_fecha_edicion'])
+        
+        # Compare the latest 'tec_fecha_edicion' with today's date
+        if latest_product['tec_fecha_edicion'] > date.today():
+            preventa = True
+        else:
+            preventa = False
     else:
+        latest_product = None  # Handle case when no product has a valid date
         preventa = False
-    
-    print("L",preventa, flush=True)
-    # Debugging today's date and the type of tec_fecha_edicion
-    print("Today's date:", date.today(), flush=True)
-    print("Type of today's date:", type(date.today()), flush=True)
-    print("Latest Product tec_fecha_edicion:", latest_product['tec_fecha_edicion'], flush=True)
-    print("Type of tec_fecha_edicion:", type(latest_product['tec_fecha_edicion']), flush=True)
+
+    print(f"Latest product with a valid edition date: {latest_product}")
+    print(f"Preventa status: {preventa}")
 
 
     # Determine the delivery status and prepare the response
