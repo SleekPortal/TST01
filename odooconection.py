@@ -3,6 +3,7 @@ import os
 from flask_cors import CORS
 import xmlrpc.client
 from datetime import datetime, date
+import re
 
 # Initialize Flask app and enable CORS
 app = Flask(__name__)
@@ -27,9 +28,17 @@ models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 # Check read access on res.partner
 models.execute_kw(db, uid, password, 'res.partner', 'check_access_rights', ['read'], {'raise_exception': False})
 
+# Function to remove numbers inside square brackets from product name
+def clean_product_name(product_name):
+    # Remove anything inside square brackets including the brackets
+    cleaned_name = re.sub(r'\[.*?\]', '', product_name).strip()
+    return cleaned_name
+
+
 @app.route('/')
 def home():
     return "Hello, the server is live!"
+
 
 @app.route('/order-status', methods=['GET'])
 def get_order_status():
@@ -95,6 +104,12 @@ def get_order_status():
 
     print(f"Latest product with a valid edition date: {latest_product}")
     print(f"Preventa status: {preventa}")
+
+    rawName = latest_product['name']
+    rawFecha = latest_product['tec_fecha_edicion']
+
+    nombreProducto = clean_product_name(rawName)
+    fechaEdicion = rawFecha.strftime('%d/%m/%Y')
 
 
     # Determine the delivery status and prepare the response
