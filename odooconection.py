@@ -73,28 +73,28 @@ def get_order_status():
             # Step 2: Query the product.template model using the product_template_id
             product_template_data = models.execute_kw(db, uid, password, 'product.template', 'search_read',
                                                     [[['id', '=', product_template_id]]],
-                                                    {'fields': ['tec_fecha_edicion']})
+                                                    {'fields': ['spfy_release_date']})
         
             # If product template data exists and has a date, convert it to a datetime object
-            if product_template_data and product_template_data[0].get('tec_fecha_edicion'):
-                tec_fecha_edicion_str = product_template_data[0]['tec_fecha_edicion']
-                tec_fecha_edicion = datetime.strptime(tec_fecha_edicion_str, '%Y-%m-%d').date()  # Convert to date object
-                product['tec_fecha_edicion'] = tec_fecha_edicion  # Assign date to the product
+            if product_template_data and product_template_data[0].get('spfy_release_date'):
+                spfy_release_date_str = product_template_data[0]['spfy_release_date']
+                spfy_release_date = datetime.strptime(spfy_release_date_str, '%Y-%m-%d').date()  # Convert to date object
+                product['spfy_release_date'] = spfy_release_date  # Assign date to the product
             else:
-                product['tec_fecha_edicion'] = None  # Handle missing date case
+                product['spfy_release_date'] = None  # Handle missing date case
         else:
-            product['tec_fecha_edicion'] = None  # Handle missing product template ID case
+            product['spfy_release_date'] = None  # Handle missing product template ID case
         
         Product_with_date.append(product)  # Add the product to the list
 
-    # Find the product with the latest 'tec_fecha_edicion' (skip None values)
-    Product_with_valid_date = [p for p in Product_with_date if p['tec_fecha_edicion'] is not None]
+    # Find the product with the latest 'spfy_release_date' (skip None values)
+    Product_with_valid_date = [p for p in Product_with_date if p['spfy_release_date'] is not None]
 
     if Product_with_valid_date:
-        latest_product = max(Product_with_valid_date, key=lambda d: d['tec_fecha_edicion'])
+        latest_product = max(Product_with_valid_date, key=lambda d: d['spfy_release_date'])
         
-        # Compare the latest 'tec_fecha_edicion' with today's date
-        if latest_product['tec_fecha_edicion'] > date.today():
+        # Compare the latest 'spfy_release_date' with today's date
+        if latest_product['spfy_release_date'] > date.today():
             preventa = True
         else:
             preventa = False
@@ -106,7 +106,7 @@ def get_order_status():
     print(f"Preventa status: {preventa}")
 
     rawName = latest_product['name']
-    rawFecha = latest_product['tec_fecha_edicion']
+    rawFecha = latest_product['spfy_release_date']
 
     nombreProducto = clean_product_name(rawName)
     fechaEdicion = rawFecha.strftime('%d/%m/%Y')
