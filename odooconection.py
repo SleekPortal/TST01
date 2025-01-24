@@ -86,10 +86,13 @@ def get_order_status():
             product['spfy_release_date'] = None  # Handle missing product template ID case
         
         Product_with_date.append(product)  # Add the product to the list
+    
+    print(Product_with_date)
 
     # Find the product with the latest 'spfy_release_date' (skip None values)
     Product_with_valid_date = [p for p in Product_with_date if p['spfy_release_date'] is not None]
-
+    print(Product_with_valid_date)
+    
     if Product_with_valid_date:
         latest_product = max(Product_with_valid_date, key=lambda d: d['spfy_release_date'])
         
