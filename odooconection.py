@@ -108,12 +108,6 @@ def get_order_status():
     print(f"Latest product with a valid edition date: {latest_product}")
     print(f"Preventa status: {preventa}")
 
-    rawName = latest_product['name']
-    rawFecha = latest_product['spfy_release_date']
-
-    nombreProducto = clean_product_name(rawName)
-    fechaEdicion = rawFecha.strftime('%d/%m/%Y')
-
 
     # Determine the delivery status and prepare the response
     if RawStatus:
@@ -133,6 +127,12 @@ def get_order_status():
         else:
             if preventa:
                 estado = 'preventa'
+                rawName = latest_product['name']
+                rawFecha = latest_product['spfy_release_date']
+
+                nombreProducto = clean_product_name(rawName)
+                fechaEdicion = rawFecha.strftime('%d/%m/%Y')
+                
                 informacion = {'producto': nombreProducto, 'fecha': fechaEdicion}
             else:
                 estado = 'esperando'
