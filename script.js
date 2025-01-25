@@ -5,19 +5,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const orderInput = document.getElementById('orderInput');
     const loadingScreen = document.getElementById('loading-screen');
 
-    // Show loading screen
+    
+
     function showLoadingScreen() {
         console.log("Showing loading screen...");
-        document.getElementById('loading-screen').style.visibility = 'visible';
-        console.log("Loading screen is now visible");
+        loadingScreen.classList.add('visible');
     }
-
-    // Hide loading screen
+    
+    
     function hideLoadingScreen() {
         console.log("Hiding loading screen...");
-        document.getElementById('loading-screen').style.visibility = 'hidden';
-        console.log("Hidden class added to loading screen");
-        console.log("Current loading screen classes:", loadingScreen.classList);
+        loadingScreen.classList.remove('visible');
     }
 
     // Ensure the loading screen is hidden initially
