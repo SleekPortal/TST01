@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingScreen.classList.add('visible');
     }
     
-    
+
     function hideLoadingScreen() {
         console.log("Hiding loading screen...");
         loadingScreen.classList.remove('visible');
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => {
                 console.error('Error fetching order status:', error);
                 hideLoadingScreen();  // Hide the loading screen if there's an error
-                alert("An error occurred while fetching the order status.");
+                alert("Ha habido un error. Por favor, contacte atencion al cliente");
             });
     });
 
