@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => {
                 console.error('Error fetching order status:', error);
                 hideLoadingScreen();
-                alert("Ha habido un error. Por favor, contacte atencion al cliente");
+                alert("Ha habido un error. Por favor, contacte atención al cliente.");
             });
     });
 });
