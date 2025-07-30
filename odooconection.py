@@ -39,109 +39,50 @@ def clean_product_name(product_name):
 def home():
     return "Hello, the server is live!"
 
+def Status(order):
+
+    # Function to remove numbers inside square brackets from product name
+        # Fetch the status of the order from Odoo
+    SaleOrder = models.execute_kw(db, uid, password, 'stock.picking', 'search_read',
+                                    [[['origin', '=', order]]],
+                                    {'fields': ['state','move_ids','carrier_id', 'carrier_tracking_ref']})
+    
+    
+    if SaleOrder:
+        if SaleOrder[0]['state']=='done':
+            return {'status': 'sent', 'info': {'carrier': SaleOrder[0]['carrier_id'], 'tracking_ref': SaleOrder[0]['carrier_id']}}
+        
+        elif SaleOrder[0]['state']=='assigned':
+            return {'status': 'ready', 'info':{}}
+        
+        elif SaleOrder[0]['state']=='confirmed':
+            Products = models.execute_kw(db, uid, password, 'stock.move', 'search_read',
+                                                    [[['id', '=', SaleOrder[0]['move_ids']]]],
+                                                    {'fields': ['product_id','spfy_release_date']})
+            
+            # Ordenar por fecha
+            SortedProducts = sorted(
+                Products,
+                key=lambda x: datetime.strptime(x['spfy_release_date'], "%Y-%m-%d"),
+                reverse=True
+            )
+
+            if datetime.strptime(SortedProducts[0]['spfy_release_date'], "%Y-%m-%d")>date.today():
+                return {'status': 'presale', 'info': {'product': clean_product_name(SortedProducts[0]['product_id'][1]), 'release_date': SortedProducts[0]['spfy_release_date'].strftime("%d/%m/%y")}}
+            else:
+                return {'status': 'waiting_product', 'info': {'carrier': SaleOrder[0]['carrier_id'], 'tracking_ref': SaleOrder[0]['carrier_id']}}
+        else:
+            return {'status': 'something_went_wrong','info':{}}
+
+    else:
+        return {'status': 'not_found', 'info':{}}
 
 @app.route('/order-status', methods=['GET'])
 def get_order_status():
     # Get the order name from the request
     order_name = request.args.get('order_name')
+    return jsonify(Status(order_name))
 
-    # Fetch the status of the order from Odoo
-    RawStatus = models.execute_kw(db, uid, password, 'stock.picking', 'search_read',
-                                  [[['origin', '=', order_name]]],
-                                  {'fields': ['state']})
-
-    # Fetch the products of the order from Odoo
-    Product_list = models.execute_kw(db, uid, password, 'sale.order.line', 'search_read',
-                                     [[['order_id', '=', order_name]]],
-                                     {'fields': ['product_id', 'name', 'product_uom_qty']})
-
-    # Create a list to store product information along with their edition date
-    Product_with_date = []
-
-    # Loop through each product in the order
-    for product in Product_list:
-        product_id = product['product_id'][0]  # Get the product's ID from 'product_id' (first item is the ID)
-        
-        # Step 1: Query the product.product model using the product_id
-        product_data = models.execute_kw(db, uid, password, 'product.product', 'search_read',
-                                        [[['id', '=', product_id]]],
-                                        {'fields': ['product_tmpl_id']})
-        
-        if product_data and product_data[0].get('product_tmpl_id'):
-            product_template_id = product_data[0]['product_tmpl_id'][0]  # Get the product template ID
-        
-            # Step 2: Query the product.template model using the product_template_id
-            product_template_data = models.execute_kw(db, uid, password, 'product.template', 'search_read',
-                                                    [[['id', '=', product_template_id]]],
-                                                    {'fields': ['spfy_release_date']})
-        
-            # If product template data exists and has a date, convert it to a datetime object
-            if product_template_data and product_template_data[0].get('spfy_release_date'):
-                spfy_release_date_str = product_template_data[0]['spfy_release_date']
-                spfy_release_date = datetime.strptime(spfy_release_date_str, '%Y-%m-%d').date()  # Convert to date object
-                product['spfy_release_date'] = spfy_release_date  # Assign date to the product
-            else:
-                product['spfy_release_date'] = None  # Handle missing date case
-        else:
-            product['spfy_release_date'] = None  # Handle missing product template ID case
-        
-        Product_with_date.append(product)  # Add the product to the list
-    
-    print(Product_with_date)
-
-    # Find the product with the latest 'spfy_release_date' (skip None values)
-    Product_with_valid_date = [p for p in Product_with_date if p['spfy_release_date'] is not None]
-    print(Product_with_valid_date)
-    
-    if Product_with_valid_date:
-        latest_product = max(Product_with_valid_date, key=lambda d: d['spfy_release_date'])
-        
-        # Compare the latest 'spfy_release_date' with today's date
-        if latest_product['spfy_release_date'] > date.today():
-            preventa = True
-        else:
-            preventa = False
-    else:
-        latest_product = None  # Handle case when no product has a valid date
-        preventa = False
-
-    print(f"Latest product with a valid edition date: {latest_product}")
-    print(f"Preventa status: {preventa}")
-
-
-    # Determine the delivery status and prepare the response
-    if RawStatus:
-        DeliveryStatus = RawStatus[0]['state']
-        if DeliveryStatus == 'assigned':
-            estado = 'preparacion'
-            informacion = {}
-        elif DeliveryStatus == 'done':
-            estado = 'enviado'
-            ShippingInfo = models.execute_kw(db, uid, password, 'stock.picking', 'search_read',
-                                             [[['origin', '=', order_name]]],
-                                             {'fields': ['carrier_id', 'carrier_tracking_ref']})
-            if ShippingInfo:
-                informacion = {'carrier': ShippingInfo[0]['carrier_id'][1], 'tracking': ShippingInfo[0]['carrier_tracking_ref']}
-            else:
-                informacion = {}
-        else:
-            if preventa:
-                estado = 'preventa'
-                rawName = latest_product['name']
-                rawFecha = latest_product['spfy_release_date']
-
-                nombreProducto = clean_product_name(rawName)
-                fechaEdicion = rawFecha.strftime('%d/%m/%Y')
-                
-                informacion = {'producto': nombreProducto, 'fecha': fechaEdicion}
-            else:
-                estado = 'esperando'
-                informacion = {}
-    else:
-        estado = 'not_found'
-        informacion = {}
-
-    return jsonify({'estado': estado, 'informacion': informacion})
 
 # Run the Flask server
 if __name__ == "__main__":
