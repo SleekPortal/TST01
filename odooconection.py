@@ -67,7 +67,7 @@ def Status(order):
                 reverse=True
             )
 
-            if datetime.strptime(SortedProducts[0]['spfy_release_date'], "%Y-%m-%d")>date.today():
+            if datetime.strptime(SortedProducts[0]['spfy_release_date'], "%Y-%m-%d").date()>date.today():
                 return {'status': 'presale', 'info': {'product': clean_product_name(SortedProducts[0]['product_id'][1]), 'release_date': SortedProducts[0]['spfy_release_date'].strftime("%d/%m/%y")}}
             else:
                 return {'status': 'waiting_product', 'info': {'carrier': SaleOrder[0]['carrier_id'], 'tracking_ref': SaleOrder[0]['carrier_id']}}
