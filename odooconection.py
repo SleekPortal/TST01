@@ -50,7 +50,7 @@ def Status(order):
     
     if SaleOrder:
         if SaleOrder[0]['state']=='done':
-            return {'status': 'sent', 'info': {'carrier': SaleOrder[0]['carrier_id'], 'tracking_ref': SaleOrder[0]['carrier_id']}}
+            return {'status': 'sent', 'info': {'carrier': SaleOrder[0]['carrier_id'][1], 'tracking_ref': SaleOrder[0]['carrier_tracking_ref']}}
         
         elif SaleOrder[0]['state']=='assigned':
             return {'status': 'ready', 'info':{}}
@@ -70,7 +70,7 @@ def Status(order):
             if datetime.strptime(SortedProducts[0]['spfy_release_date'], "%Y-%m-%d").date()>date.today():
                 return {'status': 'presale', 'info': {'product': clean_product_name(SortedProducts[0]['product_id'][1]), 'release_date': datetime.strptime(SortedProducts[0]['spfy_release_date'], "%Y-%m-%d").strftime("%d/%m/%y")}}
             else:
-                return {'status': 'waiting_product', 'info': {'carrier': SaleOrder[0]['carrier_id'][1], 'tracking_ref': SaleOrder[0]['carrier_tracking_ref'][1]}}
+                return {'status': 'waiting_product', 'info': {}}
         else:
             return {'status': 'something_went_wrong','info':{}}
 
