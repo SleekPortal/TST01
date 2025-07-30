@@ -45,15 +45,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Hide all frames including #frame-1 before showing the correct one
                 hideAllFrames();
 
-                if (data.estado === 'ready') {
+                if (data.status === 'ready') {
                     document.getElementById('frame-3').classList.add('visible');
-                } else if (data.estado === 'sent') {
+                } else if (data.status === 'sent') {
                     const frame = document.getElementById('frame-4');
                     frame.querySelector('p').innerHTML = `Su producto ha sido enviado. El pedido se ha enviado mediante ${data.informacion.carrier} y el número de envío es <a href="https://s.correosexpress.com/SeguimientoSinCP/search?n=${data.informacion.tracking}" target="_blank">${data.informacion.tracking}</a>.`;
                     frame.classList.add('visible');
-                } else if (data.estado === 'waiting_product') {
+                } else if (data.status === 'waiting_product') {
                     document.getElementById('frame-5').classList.add('visible');
-                } else if (data.estado === 'presale') {
+                } else if (data.status === 'presale') {
                     const frame = document.getElementById('frame-6');
                     frame.querySelector('p').innerHTML = `El producto ${data.informacion.producto} está en preventa y no se va a enviar hasta ${data.informacion.fecha}. Si quieres un pedido parcial (4,99€), escribe a <a href="mailto:tienda@thestoreteam.com">tienda@thestoreteam.com</a>.`;
                     frame.classList.add('visible');
